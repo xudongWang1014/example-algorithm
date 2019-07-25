@@ -1,11 +1,16 @@
 package com.example.algorithm.utils.snowflake;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SnowFlakeTest {
     public static void main(String[] args) {
+
+        Map<Long, Long> longMap = new ConcurrentHashMap<>();
+        Map<String, String> stringMap = new ConcurrentHashMap<>();
         Long start = System.currentTimeMillis();
         int num = 100 * 10000;
        //所有线程阻塞，然后统一开始
@@ -26,8 +31,16 @@ public class SnowFlakeTest {
                         }
 
                         Long id = SnowflakeIdFactory.getInstance().nextLongId();
-                      //  String strId = SnowflakeIdFactory.getInstance().nextString("Test", 24);
-                        //   System.out.println(id + "生成单个ID消耗毫秒数：" + time);
+                        if(longMap.containsKey(id)){
+                            System.out.println("long id 重复：" + id);
+                        }
+                        longMap.put(id, id);
+
+                        String strId = SnowflakeIdFactory.getInstance().nextString("Test", 24);
+                        if(stringMap.containsKey(strId)){
+                            System.out.println("String id 重复：" + strId);
+                        }
+                        stringMap.put(strId, strId);
 
                         end.countDown();
                     }
@@ -46,11 +59,11 @@ public class SnowFlakeTest {
                 e.printStackTrace();
             }
             Long time = System.currentTimeMillis() - start;
-            System.out.println("***** longMap *******" + SnowflakeIdFactory.getInstance().longMap.size());
-            System.out.println("***** stringMap ******" + SnowflakeIdFactory.getInstance().stringMap.size());
+            System.out.println("***** longMap *******" + longMap.size());
+            System.out.println("***** stringMap ******" + stringMap.size());
             System.out.println("**** 生成" + num + "条数据总消耗时间：" + time);
-            SnowflakeIdFactory.getInstance().longMap.clear();
-            SnowflakeIdFactory.getInstance().stringMap.clear();
+            longMap.clear();
+            stringMap.clear();
         }
 
     }
